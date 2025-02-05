@@ -10,6 +10,8 @@ const Home = () => {
   const [filename, setFilename] = useState<string>("");
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [detailListLog, setDetailLog] = useState<any[]>([]);
+  const [selectedLogId, setSelectedLogId] = useState<string>("");
 
   // Fetch logs based on search terms, date range, and filename regex
   const fetchLogs = async () => {
@@ -63,6 +65,24 @@ const Home = () => {
     if (e.key === 'Enter') {
       handleSearch();
     }
+  };
+
+  const handleLogClick = async (id: string) => {
+    try {
+
+      setSelectedLogId(id);
+
+      const response = await fetch(`/api/detail?id=${id}`);
+      const data = await response.json();
+      setDetailLog(data); 
+
+    } catch (error) {
+      console.error('Error fetching logs:', error);
+    }
+  };
+  
+  const closeModal = () => {
+    setDetailLog([]);
   };
 
   return (
@@ -167,7 +187,10 @@ const Home = () => {
       <ul style={{margin:'20px'}}>
         {logs.length > 0 ? (
           logs.map((log) => (
-            <li key={log._id} style={{ border: '1px solid #aaaaaa', padding: '10px', margin: '5px' }}>
+            <li 
+            key={log._id} 
+            onClick={() => handleLogClick(log._id)}
+            style={{ border: '1px solid #aaaaaa', padding: '10px', margin: '5px', cursor: 'pointer' }}>
               <strong>{log.logLevel}</strong> - 
               {/* Highlight the matching text in the message */}
               <p dangerouslySetInnerHTML={{ __html: highlightText(log.message, searchTerms.join(' ')) }} style={{ wordWrap: 'break-word', whiteSpace: 'normal' }}></p>
@@ -180,6 +203,48 @@ const Home = () => {
           <p>No logs found</p>
         )}
       </ul>
+
+      {/* Modal */}
+      {detailListLog.length > 0 && (
+        <div
+          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 overflow-hidden"
+          style={{ overflow: "hidden" }} // Prevent body scroll
+        >
+          <div
+            className="bg-white p-6 rounded-lg shadow-lg w-[800px] max-h-[80vh] overflow-y-auto"
+          >
+            <h2 className="text-xl font-bold mb-4">Log Details</h2>
+
+            <ul>
+              {detailListLog.map((log) => (
+                <li 
+                  key={log._id} 
+                  onClick={() => handleLogClick(log._id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") closeModal();
+                  }}
+                  className={`border border-gray-400 p-2 mb-2 cursor-pointer ${log._id === selectedLogId ? 'bg-green-200' : 'bg-white'}`}
+                >
+                  <strong>{log.logLevel}</strong> - 
+                  <p dangerouslySetInnerHTML={{ __html: highlightText(log.message, searchTerms.join(' ')) }} style={{ wordWrap: 'break-word', whiteSpace: 'normal' }}></p>
+                  <p>File: {log.fileName}</p>
+                  <p>Server: {log.Server}</p>
+                  <p>Time: {new Date(log.time).toLocaleString()}</p>
+                </li>
+              ))}
+            </ul>
+
+            {/* Close Button */}
+            <button 
+              onClick={closeModal} 
+              className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
