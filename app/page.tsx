@@ -1,6 +1,6 @@
 'use client';  // Indicate this is a client component
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { highlightText } from '@/utils/highlightText'; // Import the highlightText function
 
 const Home = () => {
@@ -12,12 +12,53 @@ const Home = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [detailListLog, setDetailLog] = useState<any[]>([]);
   const [selectedLogId, setSelectedLogId] = useState<string>("");
+  const [collectionName, setCollectionsName] = useState<string[]>([]);
+  const [selectedCollection, setSelectedCollection] = useState<string>("");
+
+  useEffect(() => {
+    const fetchCollections = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`/api/collection`);
+        const data = await response.json();
+        console.log(data);
+        setCollectionsName(data.collections);
+      } catch (error) {
+        console.error("Error fetching logs:", error);
+        setCollectionsName([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchCollections(); 
+    
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeModal();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  
 
   // Fetch logs based on search terms, date range, and filename regex
   const fetchLogs = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/search?query=${searchTerms.join(' ')}&startDate=${startDate}&endDate=${endDate}&filename=${filename}`);
+      console.log("selectedCollection:", selectedCollection);
+      if(selectedCollection == "") {
+        setLogs([]);
+        alert("Please choose a collection");
+        return;
+      }
+      
+      const response = await fetch(`/api/search?query=${searchTerms.join(' ')}&startDate=${startDate}&endDate=${endDate}&filename=${filename}&collection=${selectedCollection}`);
       const data = await response.json();
       setLogs(data);
     } catch (error) {
@@ -57,6 +98,8 @@ const Home = () => {
       fetchLogs();
     } else {
       setLogs([]);
+      alert("Please add atleast 1 keyword");
+      return;
     }
   };
 
@@ -72,7 +115,7 @@ const Home = () => {
 
       setSelectedLogId(id);
 
-      const response = await fetch(`/api/detail?id=${id}`);
+      const response = await fetch(`/api/detail?id=${id}&collection=${selectedCollection}`);
       const data = await response.json();
       setDetailLog(data); 
 
@@ -90,9 +133,32 @@ const Home = () => {
       <h1 style={{textAlign: 'center'}}><b>Search Logs</b></h1>
 
       <div className="w-[500px] mx-auto p-4 border rounded-lg">
-        {/* Filename Regex Input */}
+
+        {/* Collection Name */}
+        <div className="mb-1">
+          <label className="mr-2">Collection Name:</label>
+        </div>
         <div className="flex items-center mb-4">
-          <label htmlFor="filename" className="mr-2">File Name:</label>
+          <select
+            id="collectionName"
+            value={selectedCollection}
+            onChange={(e) => setSelectedCollection(e.target.value)}
+            className={`border p-2 flex-grow ${selectedCollection === "" ? "border-red-500" : "border-gray-300"}`}
+          >
+            <option value="" disabled hidden>Select a collection</option>
+            {collectionName.map((col) => (
+              <option key={col} value={col}>
+                {col}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Filename Regex Input */}
+        <div className="mb-1">
+          <label className="mr-2">File Name:</label>
+        </div>
+        <div className="flex items-center mb-4">
           <input
             id="filename"
             type="text"
@@ -105,8 +171,10 @@ const Home = () => {
         </div>
 
         {/* Start Date */}
+        <div className="mb-1">
+          <label className="mr-2">Start Date:</label>
+        </div>
         <div className="flex items-center mb-4">
-          <label htmlFor="startDate" className="mr-2">Start Date:</label>
           <input
             id="startDate"
             type="date"
@@ -117,8 +185,10 @@ const Home = () => {
         </div>
 
         {/* End Date */}
+        <div className="mb-1">
+          <label className="mr-2">End Date:</label>
+        </div>
         <div className="flex items-center mb-4">
-          <label htmlFor="endDate" className="mr-2">End Date:</label>
           <input
             id="endDate"
             type="date"
@@ -130,7 +200,7 @@ const Home = () => {
 
         {/* Render search terms dynamically */}
         <div>
-          <div className="mb-4 mt-8">
+          <div className="mb-2 mt-8">
             <label className="mr-2">Keyword:</label>
           </div>
           {searchTerms.map((term, index) => (
@@ -146,7 +216,7 @@ const Home = () => {
               {/* Remove term button */}
               <button 
                 onClick={() => handleRemoveTerm(index)} 
-                style={{ backgroundColor: '#ff0101', color: '#fff', padding: '0 20px' }}
+                style={{ backgroundColor: '#ff0101', color: '#fff', padding: '0 22px' }}
               >
                 -
               </button>

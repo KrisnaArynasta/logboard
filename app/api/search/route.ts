@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
-import Log from '@/models/log';
+import getLogModel from '@/models/log';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
@@ -10,6 +10,10 @@ export async function GET(req: NextRequest) {
   const startDate = searchParams.get('startDate');
   const endDate = searchParams.get('endDate');
   const filename = searchParams.get('filename');
+
+  const collectionName = searchParams.get('collection') || "";
+
+  const Log = getLogModel(collectionName);
 
   // Validate the query
   if (!query || typeof query !== 'string') {

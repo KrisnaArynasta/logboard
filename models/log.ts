@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, model, models } from 'mongoose';
 
 // Define the interface for your document
 export interface ILog extends Document {
@@ -9,22 +9,22 @@ export interface ILog extends Document {
   time: Date;
 }
 
-// Define the schema for the log data
-const LogSchema: Schema = new Schema(
-  {
-    logLevel: { type: String, required: true },
-    message: { type: String, required: true },
-    fileName: { type: String, required: true },
-    Server: { type: String, required: true },
-    time: { type: Date, required: true },
-  },
-  {
-    timestamps: false,  // No need for createdAt and updatedAt
-    collection: 'api-nxt',  // Specify the collection name
-  }
-);
+const getLogModel = (collectionName: string) => {
+  const LogSchema = new Schema(
+    {
+      logLevel: { type: String, required: true },
+      message: { type: String, required: true },
+      fileName: { type: String, required: true },
+      Server: { type: String, required: true },
+      time: { type: Date, required: true },
+    },
+    {
+      timestamps: false, // No need for createdAt and updatedAt
+      collection: collectionName, // Dynamic collection name
+    }
+  );
 
-// Create the model from the schema
-const Log = mongoose.models.Log || mongoose.model<ILog>("Log", LogSchema);
+  return models[collectionName] || model(collectionName, LogSchema);
+};
 
-export default Log;
+export default getLogModel;
