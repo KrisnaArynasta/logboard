@@ -3,14 +3,23 @@
 import { useEffect, useState } from "react";
 import { highlightText } from '@/utils/highlightText'; // Import the highlightText function
 
+type LogType = {
+  _id: string;
+  logLevel: string;
+  message: string;
+  fileName: string;
+  Server: string;
+  time: string; 
+};
+
 const Home = () => {
   const [searchTerms, setSearchTerms] = useState<string[]>([""]);  // Start with one empty search term
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const [filename, setFilename] = useState<string>("");
-  const [logs, setLogs] = useState<any[]>([]);
+  const [logs, setLogs] = useState<LogType[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [detailListLog, setDetailLog] = useState<any[]>([]);
+  const [detailListLog, setDetailLog] = useState<LogType[]>([]);
   const [selectedLogId, setSelectedLogId] = useState<string>("");
   const [collectionName, setCollectionsName] = useState<string[]>([]);
   const [selectedCollection, setSelectedCollection] = useState<string>("");

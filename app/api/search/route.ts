@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
   const searchTerms = query.split(' ').map(term => term.trim()).filter(Boolean);
 
   // Build the MongoDB query
-  const searchCriteria: any = {};
+  const searchCriteria: Record<string, unknown> = {};
 
   // If there are multiple search terms, use $text search
   if (searchTerms.length > 0) {
@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
 
   // Add date range filters if they exist
   if (startDate || endDate) {
-    const dateFilter: any = {};
+    const dateFilter: Record<string, unknown> = {};
     if (startDate) dateFilter['$gte'] = new Date(startDate);
     if (endDate) dateFilter['$lte'] = new Date(endDate);
     searchCriteria.time = dateFilter;
