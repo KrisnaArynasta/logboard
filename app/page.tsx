@@ -144,7 +144,7 @@ const Home = () => {
       <div className="w-[500px] mx-auto p-4 border rounded-lg">
 
         {/* Collection Name */}
-        <div className="mb-1">
+        <div>
           <label className="mr-2">Collection Name:</label>
         </div>
         <div className="flex items-center mb-4">
@@ -164,7 +164,7 @@ const Home = () => {
         </div>
 
         {/* Filename Regex Input */}
-        <div className="mb-1">
+        <div>
           <label className="mr-2">File Name:</label>
         </div>
         <div className="flex items-center mb-4">
@@ -180,7 +180,7 @@ const Home = () => {
         </div>
 
         {/* Start Date */}
-        <div className="mb-1">
+        <div>
           <label className="mr-2">Start Date:</label>
         </div>
         <div className="flex items-center mb-4">
@@ -194,7 +194,7 @@ const Home = () => {
         </div>
 
         {/* End Date */}
-        <div className="mb-1">
+        <div>
           <label className="mr-2">End Date:</label>
         </div>
         <div className="flex items-center mb-4">
@@ -225,8 +225,8 @@ const Home = () => {
               {/* Remove term button */}
               <button 
                 onClick={() => handleRemoveTerm(index)} 
-                style={{ backgroundColor: '#ff0101', color: '#fff', padding: '0 22px' }}
-              >
+                className="w-12 h-12 text-2xl font-bold text-white bg-red-500 rounded-full shadow-md transition-all duration-300 flex items-center justify-center hover:bg-red-600 hover:shadow-lg active:scale-90"
+                >
                 -
               </button>
             </div>
@@ -236,8 +236,8 @@ const Home = () => {
           <div className="flex justify-end mb-4"> {/* Right-aligns the "+" button */}
             <button
               onClick={handleAddTerm}
-              style={{ backgroundColor: '#00cafe', color: '#fff', padding: '0 20px' }}
-            >
+              className="w-12 h-12 text-2xl font-bold text-white bg-cyan-500 rounded-full shadow-md transition-all duration-300 flex items-center justify-center hover:bg-cyan-600 hover:shadow-lg active:scale-90"
+              >
               +
             </button>
           </div>
@@ -247,7 +247,7 @@ const Home = () => {
         <div className="mt-4">
           <button
             onClick={handleSearch}
-            style={{ backgroundColor: '#00b65b', color: '#fff', padding: '0 20px', width: '100%' }}
+            className="w-full px-6 py-3 text-lg font-semibold text-white transition-all duration-300 ease-in-out bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl shadow-lg hover:shadow-xl hover:scale-105 hover:from-emerald-600 hover:to-green-500 focus:outline-none focus:ring-4 focus:ring-green-300 active:scale-95"
           >
             Search
           </button>
@@ -304,7 +304,8 @@ const Home = () => {
                   }}
                   className={`border border-gray-400 p-2 mb-2 cursor-pointer ${log._id === selectedLogId ? 'bg-green-200' : 'bg-white'}`}
                 >
-                  <strong>{log.logLevel}</strong> - 
+                  <strong>{log.logLevel}</strong> 
+                  <strong> ({log._id})</strong> 
                   <p dangerouslySetInnerHTML={{ __html: highlightText(log.message, searchTerms.join(' ')) }} style={{ wordWrap: 'break-word', whiteSpace: 'normal' }}></p>
                   <p>File: {log.fileName}</p>
                   <p>Server: {log.Server}</p>

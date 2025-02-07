@@ -24,6 +24,8 @@ export async function GET(req: NextRequest) {
       .limit(linesContext)
       .lean();
 
+    before.reverse(); // the data will return for example id 6,5,4. so need to reverse 
+
     const current = await Log.findOne({ _id: id }).lean();
 
     const after = await Log.find({ _id: { $gt: id } })
